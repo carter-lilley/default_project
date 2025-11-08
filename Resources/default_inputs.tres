@@ -1,0 +1,131 @@
+[gd_resource type="Resource" script_class="InputActionList" load_steps=29 format=3 uid="uid://ca58t4r2bib2j"]
+
+[ext_resource type="Script" uid="uid://bnb5a4ias4s4u" path="res://Resources/input_action.gd" id="1_x2y2r"]
+[ext_resource type="Script" uid="uid://b1bywa8bjafw5" path="res://Resources/input_action_list.gd" id="2_hoiju"]
+
+[sub_resource type="InputEventKey" id="InputEventKey_1v52t"]
+device = -1
+keycode = 87
+unicode = 119
+
+[sub_resource type="InputEventJoypadMotion" id="InputEventJoypadMotion_vuc48"]
+axis = 1
+axis_value = -1.0
+
+[sub_resource type="Resource" id="Resource_lpl8i"]
+script = ExtResource("1_x2y2r")
+name = "move_forward"
+events = Array[InputEvent]([SubResource("InputEventKey_1v52t"), SubResource("InputEventJoypadMotion_vuc48")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventKey" id="InputEventKey_n27mu"]
+device = -1
+keycode = 83
+unicode = 115
+
+[sub_resource type="InputEventJoypadMotion" id="InputEventJoypadMotion_23qdl"]
+axis = 1
+axis_value = 1.0
+
+[sub_resource type="Resource" id="Resource_d6c7f"]
+script = ExtResource("1_x2y2r")
+name = "move_back"
+events = Array[InputEvent]([SubResource("InputEventKey_n27mu"), SubResource("InputEventJoypadMotion_23qdl")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventKey" id="InputEventKey_6w8i5"]
+device = -1
+keycode = 65
+unicode = 97
+
+[sub_resource type="InputEventJoypadMotion" id="InputEventJoypadMotion_1v52t"]
+axis_value = -1.0
+
+[sub_resource type="Resource" id="Resource_0v7ul"]
+script = ExtResource("1_x2y2r")
+name = "move_left"
+events = Array[InputEvent]([SubResource("InputEventKey_6w8i5"), SubResource("InputEventJoypadMotion_1v52t")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventKey" id="InputEventKey_aph2t"]
+device = -1
+keycode = 68
+unicode = 100
+
+[sub_resource type="InputEventJoypadMotion" id="InputEventJoypadMotion_lpl8i"]
+axis_value = 1.0
+
+[sub_resource type="Resource" id="Resource_ryylg"]
+script = ExtResource("1_x2y2r")
+name = "move_right"
+events = Array[InputEvent]([SubResource("InputEventKey_aph2t"), SubResource("InputEventJoypadMotion_lpl8i")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventKey" id="InputEventKey_bfeft"]
+device = -1
+keycode = 32
+unicode = 32
+
+[sub_resource type="InputEventJoypadButton" id="InputEventJoypadButton_n27mu"]
+pressed = true
+
+[sub_resource type="Resource" id="Resource_0r2dx"]
+script = ExtResource("1_x2y2r")
+name = "move_up"
+events = Array[InputEvent]([SubResource("InputEventKey_bfeft"), SubResource("InputEventJoypadButton_n27mu")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventKey" id="InputEventKey_tmrmx"]
+device = -1
+keycode = 4194326
+
+[sub_resource type="InputEventJoypadButton" id="InputEventJoypadButton_d6c7f"]
+button_index = 1
+pressed = true
+
+[sub_resource type="Resource" id="Resource_7xkgg"]
+script = ExtResource("1_x2y2r")
+name = "move_down"
+events = Array[InputEvent]([SubResource("InputEventKey_tmrmx"), SubResource("InputEventJoypadButton_d6c7f")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventJoypadButton" id="InputEventJoypadButton_x2y2r"]
+pressed = true
+
+[sub_resource type="Resource" id="Resource_hoiju"]
+script = ExtResource("1_x2y2r")
+name = "ui_accept"
+events = Array[InputEvent]([SubResource("InputEventJoypadButton_x2y2r")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventJoypadButton" id="InputEventJoypadButton_1t4sg"]
+button_index = 1
+pressed = true
+
+[sub_resource type="InputEventKey" id="InputEventKey_kuqng"]
+device = -1
+keycode = 4194305
+
+[sub_resource type="Resource" id="Resource_dgkmx"]
+script = ExtResource("1_x2y2r")
+name = "ui_cancel"
+events = Array[InputEvent]([SubResource("InputEventJoypadButton_1t4sg"), SubResource("InputEventKey_kuqng")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[sub_resource type="InputEventKey" id="InputEventKey_x2y2r"]
+keycode = 4194305
+
+[sub_resource type="InputEventJoypadButton" id="InputEventJoypadButton_hoiju"]
+button_index = 6
+pressed = true
+
+[sub_resource type="Resource" id="Resource_1t4sg"]
+script = ExtResource("1_x2y2r")
+name = "pause"
+events = Array[InputEvent]([SubResource("InputEventKey_x2y2r"), SubResource("InputEventJoypadButton_hoiju")])
+metadata/_custom_type_script = "uid://bnb5a4ias4s4u"
+
+[resource]
+script = ExtResource("2_hoiju")
+list = Array[ExtResource("1_x2y2r")]([SubResource("Resource_lpl8i"), SubResource("Resource_d6c7f"), SubResource("Resource_0v7ul"), SubResource("Resource_ryylg"), SubResource("Resource_0r2dx"), SubResource("Resource_7xkgg"), SubResource("Resource_hoiju"), SubResource("Resource_dgkmx"), SubResource("Resource_1t4sg")])
+metadata/_custom_type_script = "uid://b1bywa8bjafw5"

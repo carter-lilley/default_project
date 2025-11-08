@@ -1,0 +1,103 @@
+[gd_scene load_steps=14 format=3 uid="uid://q8lkyjiebml8"]
+
+[ext_resource type="PackedScene" uid="uid://chvkd7wi7flwp" path="res://world.blend" id="1_f62ft"]
+[ext_resource type="Script" uid="uid://b14ruam5yia5t" path="res://Managers/input_manager.gd" id="2_23qdl"]
+[ext_resource type="Script" uid="uid://bxflifbe7e54k" path="res://Components/ComposerComponent.gd" id="2_r1gqu"]
+[ext_resource type="Script" uid="uid://2jm43dul1g1u" path="res://Managers/player_manager.gd" id="3_1v52t"]
+[ext_resource type="Resource" uid="uid://ca58t4r2bib2j" path="res://Resources/default_inputs.tres" id="3_23qdl"]
+[ext_resource type="Script" uid="uid://d1cn2drdrb2vc" path="res://Components/player_component.gd" id="3_tfbbp"]
+[ext_resource type="Script" uid="uid://dnv8p6icsvnv0" path="res://Managers/settings_manager.gd" id="4_lpl8i"]
+[ext_resource type="Script" uid="uid://ckh8h1c6jmdxa" path="res://Managers/ui_manager.gd" id="6_lpl8i"]
+[ext_resource type="Script" uid="uid://bmbegdd5jqed0" path="res://Behaviors/simple_fly_behavior.gd" id="7_1v52t"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_5ycn3"]
+sky_top_color = Color(0.13333334, 0.34509805, 0.54901963, 1)
+ground_bottom_color = Color(0.3529412, 0.34901962, 0.3529412, 1)
+
+[sub_resource type="Sky" id="Sky_8xss1"]
+sky_material = SubResource("ProceduralSkyMaterial_5ycn3")
+
+[sub_resource type="Environment" id="Environment_rco2e"]
+background_mode = 2
+sky = SubResource("Sky_8xss1")
+ambient_light_sky_contribution = 0.5
+tonemap_mode = 4
+tonemap_exposure = 1.25
+ssao_enabled = true
+ssil_enabled = true
+ssil_intensity = 0.25
+glow_enabled = true
+glow_normalized = true
+fog_enabled = true
+fog_sky_affect = 0.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5ycn3"]
+radius = 0.25
+height = 1.75
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_rco2e")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.9465616, -0.021118132, -0.32183138, -0.31556636, 0.26678059, 0.91062945, 0.06662754, 0.963526, -0.25918835, 0, 4.856099, 0)
+light_color = Color(1, 0.9882353, 0.9098039, 1)
+light_energy = 1.5
+light_indirect_energy = 3.0
+shadow_enabled = true
+shadow_bias = 0.04
+directional_shadow_blend_splits = true
+
+[node name="world" parent="." instance=ExtResource("1_f62ft")]
+
+[node name="GameManager" type="Node" parent="."]
+
+[node name="PhysicsManager" type="Node" parent="GameManager"]
+
+[node name="UIManager" type="Node" parent="GameManager"]
+script = ExtResource("6_lpl8i")
+metadata/_custom_type_script = "uid://ckh8h1c6jmdxa"
+
+[node name="InputManager" type="Node" parent="GameManager"]
+script = ExtResource("2_23qdl")
+default_actions = ExtResource("3_23qdl")
+metadata/_custom_type_script = "uid://b14ruam5yia5t"
+
+[node name="PlayerManager" type="Node" parent="GameManager"]
+script = ExtResource("3_1v52t")
+metadata/_custom_type_script = "uid://2jm43dul1g1u"
+
+[node name="SettingsManager" type="Node" parent="GameManager"]
+script = ExtResource("4_lpl8i")
+metadata/_custom_type_script = "uid://dnv8p6icsvnv0"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.471051, 7.426359)
+
+[node name="ComposerComponent" type="Node" parent="Camera3D"]
+script = ExtResource("2_r1gqu")
+metadata/_custom_type_script = "uid://bxflifbe7e54k"
+
+[node name="Behavior" type="Node" parent="Camera3D/ComposerComponent"]
+script = ExtResource("7_1v52t")
+metadata/_custom_type_script = "uid://mbet8kxxuvm0"
+
+[node name="PlayerComponent" type="Node" parent="Camera3D"]
+script = ExtResource("3_tfbbp")
+metadata/_custom_type_script = "uid://d1cn2drdrb2vc"
+
+[node name="CharacterBody3D" type="CharacterBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9841743, 0)
+shape = SubResource("CapsuleShape3D_5ycn3")
+
+[node name="ComposerComponent" type="Node" parent="CharacterBody3D"]
+script = ExtResource("2_r1gqu")
+metadata/_custom_type_script = "uid://bxflifbe7e54k"
+
+[node name="PlayerComponent" type="Node" parent="CharacterBody3D"]
+script = ExtResource("3_tfbbp")
+player_id = 2
+metadata/_custom_type_script = "uid://d1cn2drdrb2vc"

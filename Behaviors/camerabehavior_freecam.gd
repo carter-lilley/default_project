@@ -1,0 +1,2 @@
+#camerabehavior_freecam.gd
+extends CameraBehavior
