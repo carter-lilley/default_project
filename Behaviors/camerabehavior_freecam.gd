@@ -1,2 +1,3 @@
 #camerabehavior_freecam.gd
 extends CameraBehavior
+class_name CameraBehaviorFreeCam
