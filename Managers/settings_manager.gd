@@ -12,7 +12,7 @@ var settings: Settings
 var settings_dict: Dictionary[String, SettingsVar] = {}
 
 func _init() -> void:
-	print("SettingsManager initialized.")
+	print("[SettingsManager]: initialized.")
 	load_settings()
 	
 func _ready() -> void:
@@ -27,7 +27,7 @@ func get_settings() -> Dictionary:
 		return dictionary
 	for property in settings.get_property_list():
 		if settings.get(property.name) is SettingsVar: #Check each property for SettingsVars
-			print(settings.get(property.name))
+			print("[SettingsManager]:",settings.get(property.name))
 			#dictionary[property.name] = settings.get(property.name) #Property name is key, SettingsVAR is value. 
 			#print("Storing ", property.value)
 	return dictionary
@@ -59,12 +59,12 @@ func enable_setting(name:String):
 func disable_setting(name:String):
 	var settingsvar: SettingsVar = get_setting(name)
 	settingsvar.state = SettingsVar.SettingState.DISABLED
-	print("Disabling setting: ",name, settingsvar.state )
+	print("[SettingsManager]: Disabling setting ",name, settingsvar.state )
 
 func set_action(new_action: InputAction, actions : InputActionList):
 	for action in actions.list:
 		if action.name == new_action.name:
-			print('Replacing action..', action.events, " with ", new_action.events)
+			print('[SettingsManager]: Replacing action..', action.events, " with ", new_action.events)
 			action.events = new_action.events
 			emit_signal("action_changed", new_action)
 
@@ -77,7 +77,7 @@ func set_setting(value: Variant, setting: SettingsVar):
 		value = setting.value
 	setting.value = value
 	emit_signal("setting_changed", value, setting)
-	print("Changed setting '%s' to %s" % [setting.property_name, str(value)])
+	print("[SettingsManager]: Changed setting '%s' to %s" % [setting.property_name, str(value)])
 
 func get_setting(name:String) -> SettingsVar:
 	var settingsvar: SettingsVar
@@ -91,13 +91,13 @@ func load_settings() -> void:
 	if FileAccess.file_exists(SAVE_PATH):
 		settings = ResourceLoader.load(SAVE_PATH) as Settings
 		if settings:
-			print("Loaded preferences from disk.")
+			print("[SettingsManager]: Loaded preferences from disk.")
 			store_property_names(settings)
 			return
 	# fallback if load failed
 	settings = Settings.new()
 	store_property_names(settings)
-	print("Created new default preferences.")
+	print("[SettingsManager]: Created new default preferences.")
 
 # Here we're storing an internal reference to the properties the settingsvars are assigned to. 
 func store_property_names(settings : Settings):
@@ -112,7 +112,7 @@ func save_settings() -> void:
 		if err != OK:
 			push_error("Failed to save preferences: %s" % err)
 		else:
-			print("Preferences saved.")
+			print("[SettingsManager]: Preferences saved.")
 
 func reset_settings() -> void:
 	settings = Settings.new()

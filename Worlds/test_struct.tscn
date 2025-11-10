@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://dnv8p6icsvnv0" path="res://Managers/settings_manager.gd" id="4_lpl8i"]
 [ext_resource type="Script" uid="uid://ckh8h1c6jmdxa" path="res://Managers/ui_manager.gd" id="6_lpl8i"]
 [ext_resource type="Script" uid="uid://blojp54taatyw" path="res://Managers/display_manager.gd" id="7_n27mu"]
+[ext_resource type="Script" uid="uid://clvfnil4r3ue6" path="res://Behaviors/behavior_freecam.gd" id="8_lpl8i"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_5ycn3"]
 sky_top_color = Color(0.13333334, 0.34509805, 0.54901963, 1)
@@ -29,10 +30,6 @@ glow_enabled = true
 glow_normalized = true
 fog_enabled = true
 fog_sky_affect = 0.0
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_5ycn3"]
-radius = 0.25
-height = 1.75
 
 [node name="Node3D" type="Node3D" unique_id=510076351]
 
@@ -81,21 +78,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.471051, 7.426359)
 script = ExtResource("2_r1gqu")
 metadata/_custom_type_script = "uid://bxflifbe7e54k"
 
+[node name="Behavior_Freecam" type="Node" parent="Camera3D/ComposerComponent" unique_id=801434273]
+script = ExtResource("8_lpl8i")
+metadata/_custom_type_script = "uid://clvfnil4r3ue6"
+
 [node name="PlayerComponent" type="Node" parent="Camera3D" unique_id=801099928]
 script = ExtResource("3_tfbbp")
-metadata/_custom_type_script = "uid://d1cn2drdrb2vc"
-
-[node name="CharacterBody3D" type="CharacterBody3D" parent="." unique_id=2142924660]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CharacterBody3D" unique_id=1689650583]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9003996, 0)
-shape = SubResource("CapsuleShape3D_5ycn3")
-
-[node name="ComposerComponent" type="Node" parent="CharacterBody3D" unique_id=1539272409]
-script = ExtResource("2_r1gqu")
-metadata/_custom_type_script = "uid://bxflifbe7e54k"
-
-[node name="PlayerComponent" type="Node" parent="CharacterBody3D" unique_id=1842206777]
-script = ExtResource("3_tfbbp")
-player_id = 2
 metadata/_custom_type_script = "uid://d1cn2drdrb2vc"

@@ -76,7 +76,7 @@ func match_var_type(settingsvar : SettingsVar):
 			#fix setting after creation
 			rangeslider.set("_step",0.05)
 			rangeslider.set("range_start",settingsvar.value.x)
-			print("SETTING RANGE START ", settingsvar.value.x)
+			#print("SETTING RANGE START ", settingsvar.value.x)
 			rangeslider.set("range_end",settingsvar.value.y)
 			var rangeslider_label = Label.new()
 			rangeslider_label.text = settingsvar.display_name

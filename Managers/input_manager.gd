@@ -5,15 +5,14 @@ extends Manager
 @onready var settings_man = $"../SettingsManager"
 @onready var player_man = $"../PlayerManager"
 
-# the general idea is that there are default actions
-# and then behaviors layer new contextual actions
+var connected_controllers: Dictionary = {} # device_id -> name
 signal action_triggered(action: String, event: InputEvent)
 
 #@export_tool_button("add_default_actions", "Callable") var callable_action = add_default_actions
 func _ready() -> void:
 	initialize_actions()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
-	print("InputManager initialized.")
+	print("[InputManager]: initialized.")
 	settings_man.connect("action_changed", _on_action_changed)
 
 func initialize_actions():
@@ -32,7 +31,7 @@ func _on_action_changed(action: InputAction):
 		add_action(action)
 		ControllerIcons.refresh()
 
-func get_vector(negative_x: StringName, positive_x: StringName, negative_y: StringName, positive_y: StringName, deadzone: float = -1.0, response: Curve = null) -> Vector2: #response: Curve
+func get_vector(negative_x: StringName, positive_x: StringName, negative_y: StringName, positive_y: StringName, deadzone: float = 0.0, response: Curve = null) -> Vector2: #response: Curve
 	var vector: Vector2 = Vector2(Input.get_axis(negative_x, positive_x), Input.get_axis(negative_y, positive_y))
 #If the response isn't specified, use a linear curve.
 	if response == null:
@@ -69,13 +68,17 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_joy_connection_changed(device_id: int, connected: bool):
 	if connected:
-		print("Controller %d connected" % device_id)
+		var device_name = Input.get_joy_name(device_id)
+		connected_controllers[device_id] = device_name
+		print("[InputManager]: Controller %s - %d connected" % [device_name, device_id])
 		for player in player_man.players:
 			if not player.has_joypad:
 				player.bind_controller(device_id)
 				return
 	else:
-		print("Controller %d disconnected" % device_id)
+		var device_name = connected_controllers.get(device_id, "Unknown")
+		print("[InputManager]: Controller %s - %d disconnected" % [device_name, device_id])
+		connected_controllers.erase(device_id)
 		for player in player_man.players:
 			if player.controller_id == device_id:
 				player.unbind_controller(device_id)

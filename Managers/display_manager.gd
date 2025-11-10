@@ -28,7 +28,7 @@ func set_viewport_scaler(choice : Settings.scalers):
 	match choice:
 		Settings.scalers.NONE:
 			get_viewport().set_scaling_3d_scale(1.0)
-			print("Set viewport scale to: ", 1.0)
+			print("[DisplayManager]: Set viewport scale to: ", 1.0)
 			settings_man.disable_setting("scale")
 		Settings.scalers.BILINIEAR:
 			get_viewport().set_scaling_3d_mode(Viewport.SCALING_3D_MODE_BILINEAR)
@@ -54,15 +54,15 @@ func set_viewport_scale(choice : Settings.scales):
 		Settings.scales.PERFORMANCE:
 			scale = .50
 	get_viewport().set_scaling_3d_scale(scale)
-	print("Set viewport scale to: ", scale)
+	print("[DisplayManager]: Set viewport scale to: ", scale)
 
 func windowed_toggle(value : bool):
 	if value:
-		print("Windowed mode.")
+		print("[DisplayManager]: Windowed mode.")
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 		set_resolution(settings_man.get_setting("resolution").value)
 		settings_man.enable_setting("resolution")
 	else:
-		print("Fullscreen mode.")
+		print("[DisplayManager]: Fullscreen mode.")
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		settings_man.disable_setting("resolution")
