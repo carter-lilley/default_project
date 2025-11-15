@@ -3,7 +3,7 @@
 extends Component
 class_name PlayerComponent
 
-@export var intent:PlayerIntent = PlayerIntent.new()
+@export var intent:Intent = Intent.new()
 @export var player_id: int = 1               # Player 1, 2, 3...
 @export var controller_id: int = -1   # Joystick ID
 @export var is_connected:bool = false
@@ -14,19 +14,16 @@ class_name PlayerComponent
 func _init() -> void:
 	add_to_group("player_components")
 
-func get_intent():# -> PlayerIntent:
+func _process(delta: float) -> void:
 	pass
+	#print(intent.actions)
 
-#You should pass some relevant information and print it here. 
-#Whats the name of the controller its bound to?
-#Also, you need to disconnect it as well.
-
-func unbind_controller(devID: int):
+func unbind_controller(device_name : String, devID: int):
 	controller_id = -1
 	has_joypad = false
-	print(self, " unbound joy.", devID)
+	print("[%s]: Controller - %s unbound" % [name, device_name])
 	
-func bind_controller(devID: int):
+func bind_controller(device_name : String, devID: int):
 	controller_id = devID
 	has_joypad = true
-	print(self, " bound to new joy ID ", devID)
+	print("[%s]: Controller - %s bound" % [name, device_name])

@@ -4,82 +4,100 @@ class_name InputManager
 extends Manager
 @onready var settings_man = $"../SettingsManager"
 @onready var player_man = $"../PlayerManager"
-
+@export var DUMMY_ACTIONS : InputActionList
 var connected_controllers: Dictionary = {} # device_id -> name
 signal action_triggered(action: String, event: InputEvent)
 
+#Alright so here's the deal. Keep the action map names as generic as possible.
+#They can even overlap, if you like. "Primary_Action", "Secondary_Action" "Menu" etc.
+#Then either the intents or behaviors will decide semantically what these actions mean to them.
+#intent.actions["teleport"] = intent.actions_generic["action_secondary"], etc.
+#Right now controlling components have intents. We just need to build those intents somewhere. 
+
 #@export_tool_button("add_default_actions", "Callable") var callable_action = add_default_actions
 func _ready() -> void:
-	initialize_actions()
-	Input.joy_connection_changed.connect(_on_joy_connection_changed)
-	print("[InputManager]: initialized.")
-	settings_man.connect("action_changed", _on_action_changed)
+    initialize_actions()
+    Input.joy_connection_changed.connect(_on_joy_connection_changed)
+    print("[InputManager]: initialized.")
+    settings_man.connect("action_changed", _on_action_changed)
 
 func initialize_actions():
-	var actions = settings_man.get_setting("actions").value as InputActionList
-	for action in actions.list:
-		add_action(action) 
+    var actions = settings_man.get_setting("actions").value as InputActionList
+    for action in actions.list:
+        add_action(action) 
 
 func add_action(action: InputAction):
-	if InputMap.has_action(action.name):
-		InputMap.erase_action(action.name)
-	InputMap.add_action(action.name)
-	for event in action.events:
-		InputMap.action_add_event(action.name, event)
+    if InputMap.has_action(action.name):
+        InputMap.erase_action(action.name)
+    InputMap.add_action(action.name)
+    for event in action.events:
+        InputMap.action_add_event(action.name, event)
 
 func _on_action_changed(action: InputAction):
-		add_action(action)
-		ControllerIcons.refresh()
+        add_action(action)
+        ControllerIcons.refresh()
 
 func get_vector(negative_x: StringName, positive_x: StringName, negative_y: StringName, positive_y: StringName, deadzone: float = 0.0, response: Curve = null) -> Vector2: #response: Curve
-	var vector: Vector2 = Vector2(Input.get_axis(negative_x, positive_x), Input.get_axis(negative_y, positive_y))
+    var vector: Vector2 = Vector2(Input.get_axis(negative_x, positive_x), Input.get_axis(negative_y, positive_y))
 #If the response isn't specified, use a linear curve.
-	if response == null:
-		response = Curve.new()
-		response.add_point(Vector2(0,0))
-		response.add_point(Vector2(1,1))
+    if response == null:
+        response = Curve.new()
+        response.add_point(Vector2(0,0))
+        response.add_point(Vector2(1,1))
 
 #If the deadzone isn't specified, get it from the average of the actions.
-	if deadzone < 0.0:
-		deadzone = 0.25 * (
-			InputMap.action_get_deadzone(positive_x) +
-			InputMap.action_get_deadzone(negative_x) +
-			InputMap.action_get_deadzone(positive_y) +
-			InputMap.action_get_deadzone(negative_y)
-		)
+    if deadzone < 0.0:
+        deadzone = 0.25 * (
+            InputMap.action_get_deadzone(positive_x) +
+            InputMap.action_get_deadzone(negative_x) +
+            InputMap.action_get_deadzone(positive_y) +
+            InputMap.action_get_deadzone(negative_y)
+        )
 #Now, take the length & do circular limiting, deadzone, and response interpolation. 
-	var length := vector.length()
-	if length == 0:
-		return Vector2.ZERO
-	if length > 1.0:
-		vector /= length
-		length = 1.0
-	var scaled_length : float = clamp((length - deadzone) / (1.0 - deadzone), 0.0, 1.0)
-	var final_length : float = response.sample(scaled_length)
+    var length := vector.length()
+    if length == 0:
+        return Vector2.ZERO
+    if length > 1.0:
+        vector /= length
+        length = 1.0
+    var scaled_length : float = clamp((length - deadzone) / (1.0 - deadzone), 0.0, 1.0)
+    var final_length : float = response.sample(scaled_length)
 # Reapply the direction vector to the new magnitude
-	return vector.normalized() * final_length
+    return vector.normalized() * final_length
 
+
+# You can make this more performant in a couple ways -
+# Have a signal store the "first player" to always refence it direcly
+# For controllers, have a check that directly compares the deviceID to the players device...
+# So, you're only looping through if the device isn't found. (Actually, is that possible? Should it be)
+# Lastly, you can make a local duplicate of the action array when it's updated to look through...
+# Though im skeptical it will be any more performant. 
 func _unhandled_input(event: InputEvent) -> void:
-	for action_name in InputMap.get_actions():
-		if InputMap.action_has_event(action_name, event):
-			if event.is_action(action_name):
-				emit_signal("action_triggered", action_name, event)
-				#print("Action:", action_name)
-
+    print(event.device)
+    for action_name in InputMap.get_actions():
+        if InputMap.action_has_event(action_name, event):
+            if event.is_action(action_name):
+                if event is InputEventKey or event is InputEventMouse:
+                    var first_player = player_man.get_player(1)
+                    if first_player:    
+                        print("[InputManager]: Sent action...", action_name, "to player", first_player.player_id)
+                else:
+                    for player in player_man.players:
+                        if player.controller_id != event.device:
+                            continue
+                        player.intent.actions[action_name] = event
+                        print("[InputManager]: Sent action...", action_name, "to player", player.player_id)
+ 
 func _on_joy_connection_changed(device_id: int, connected: bool):
-	if connected:
-		var device_name = Input.get_joy_name(device_id)
-		connected_controllers[device_id] = device_name
-		print("[InputManager]: Controller %s - %d connected" % [device_name, device_id])
-		for player in player_man.players:
-			if not player.has_joypad:
-				player.bind_controller(device_id)
-				return
-	else:
-		var device_name = connected_controllers.get(device_id, "Unknown")
-		print("[InputManager]: Controller %s - %d disconnected" % [device_name, device_id])
-		connected_controllers.erase(device_id)
-		for player in player_man.players:
-			if player.controller_id == device_id:
-				player.unbind_controller(device_id)
-				return
+    if connected:
+        var device_name = Input.get_joy_name(device_id)
+        connected_controllers[device_id] = device_name
+        print("[InputManager]: Controller %s - %d connected" % [device_name, device_id])
+    else:
+        var device_name = connected_controllers.get(device_id, "Unknown")
+        print("[InputManager]: Controller %s - %d disconnected" % [device_name, device_id])
+        connected_controllers.erase(device_id)
+        for player in player_man.players:
+            if player.controller_id == device_id:
+                player.unbind_controller(device_name, device_id)
+                return

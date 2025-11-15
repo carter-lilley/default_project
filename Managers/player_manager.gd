@@ -13,32 +13,30 @@ var can_join: bool = true
 signal player_registered(player: Node)
 
 func _ready():
-	input_man.connect("action_triggered", _build_intent)
 	print("[PlayerManager]: initialized.")
 	_find_existing_players()
 
-func _build_intent(action: String, event: InputEvent):
-	for player in players:
-		if player.controller_id != event.device:
-			continue # Skip players that don't own this device
-		match action:
-			"jump":
-				player.intent.jump = event.is_pressed()
-			"crouch":
-				player.intent.crouch = event.is_pressed()
-			"sprint":
-				player.intent.sprint = event.is_pressed()
-		# Map analog movement
-		player.intent.move = input_man.get_vector(
-			"move_left", "move_right", "move_forward", "move_back")
-			#settings_man.get_setting("lstick_dz").value,
-			#settings_man.get_setting("lstick_response").value
-		#)
+#This seems wildly inefficient every input frame
+#How do "drop in" systems work without polling every frame?
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		var device_id = event.device
+		for player in players:
+			if not player.has_joypad:
+				print("[PlayerManager]: Player bound to controller %s (%d)" % [Input.get_joy_name(device_id), device_id])
+				player.bind_controller(Input.get_joy_name(device_id), device_id)
+				return
 
 func _find_existing_players():
 	for node in get_tree().get_nodes_in_group("player_components"):
 		if node is PlayerComponent:
 			register_player(node)
+
+func get_player(id : int):
+	for player in players:
+		if player.player_id == id:
+			return player
+	return null
 
 func register_player(player: PlayerComponent):
 	if player in players:

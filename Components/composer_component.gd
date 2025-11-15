@@ -11,17 +11,14 @@ signal transform_applied(transform: Transform3D)
 	
 func _ready() -> void:
 	parent = get_parent() as Node3D
-	#print(parent)
-	#Store behaviors and action 
-	for child in parent.get_children():
-		#print(child)
-		if child.has_method("get_intent"):
-			intent_emitter = child
 	for child in get_children():
-			if child is Behavior:
-				print("[%s COMPOSER]: %s - behavior added to list." % [parent.name, child.name])
-				behaviors.append(child)
-	print("[%s COMPOSER]: FOUND INTENT EMITTER %s." % [parent.name,intent_emitter.name])
+		if child is Behavior:
+			print("[%s COMPOSER]: %s - behavior added to list." % [parent.name, child.name])
+			behaviors.append(child)
+	for sibling in parent.get_children():
+		if sibling.has_method("intent"):
+			intent_emitter = sibling
+			print("[%s COMPOSER]: FOUND INTENT EMITTER %s." % [parent.name,intent_emitter.name])
 				
 
 # Interpret behavior transform relative to current transform
