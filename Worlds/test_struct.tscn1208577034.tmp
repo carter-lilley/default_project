@@ -88,7 +88,6 @@ metadata/_custom_type_script = "uid://clvfnil4r3ue6"
 
 [node name="PlayerComponent" type="Node" parent="Camera3D" unique_id=801099928]
 script = ExtResource("3_tfbbp")
-player_id = 1
 metadata/_custom_type_script = "uid://d1cn2drdrb2vc"
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=923700309]

@@ -3,45 +3,53 @@
 class_name PlayerManager
 extends Manager
 
-var players: Array[PlayerComponent] = []
-var first_player:bool = false
+var players: Array[Player]
+var unbound_players:Array[Player]
 var can_join: bool = true
 
 @onready var input_man = $"../InputManager"
 @onready var settings_man = $"../SettingsManager"
-# signal for new player
+
 signal player_registered(player: Node)
+signal first_player_registered()
 
 func _ready():
 	print("[PlayerManager]: initialized.")
-	_find_existing_players()
-
-#This seems wildly inefficient every input frame
-#How do "drop in" systems work without polling every frame?
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
-		var device_id = event.device
-		for player in players:
-			if not player.has_joypad:
-				print("[PlayerManager]: Player bound to controller %s (%d)" % [Input.get_joy_name(device_id), device_id])
-				player.bind_controller(Input.get_joy_name(device_id), device_id)
-				return
-
-func _find_existing_players():
-	for node in get_tree().get_nodes_in_group("player_components"):
-		if node is PlayerComponent:
-			register_player(node)
-
+	var p1 = Player.new()
+	register_player(p1)
+	get_tree().connect("node_added", _on_node_added)
+	bind_existing_components()
+	
 func get_player(id : int):
 	for player in players:
-		if player.player_id == id:
+		if player.id == id:
 			return player
 	return null
 
-func register_player(player: PlayerComponent):
+func _on_node_added(node: Node):
+	if node is PlayerComponent:
+		bind_component(node)
+			
+func bind_existing_components():
+	for node in get_tree().get_nodes_in_group("player_components"):
+		if node is PlayerComponent:
+			bind_component(node)
+
+func bind_component(component: Node):
+	var id = component.player_id
+	var player = get_player(id)
+	if id <= 0 or not player:
+		return # component is unassigned or player does not exist
+	component.bind_player(player)
+
+func register_player(player: Player):
 	if player in players:
-		return # already registered
+		return # Player is already registered. 
+	var id = players.size()+1
+	if id == 1:
+		emit_signal("first_player_registered")
+	player.id = id
 	players.append(player)
-	player.is_connected = true
+	unbound_players.append(player)
 	emit_signal("player_registered", player)
-	print("[PlayerManager]: Player registered ", player.player_id)
+	print("[PlayerManager]: Player registered ", player.id)
