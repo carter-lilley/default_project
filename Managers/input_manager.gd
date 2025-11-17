@@ -5,7 +5,7 @@ extends Manager
 @onready var settings_man = $"../SettingsManager"
 @onready var player_man = $"../PlayerManager"
 @export var DUMMY_ACTIONS : InputActionList
-var connected_controllers: Dictionary = {} # device_id -> name
+
 signal action_triggered(action: String, event: InputEvent)
 
 #Alright so here's the deal. Keep the action map names as generic as possible.
@@ -18,16 +18,21 @@ signal action_triggered(action: String, event: InputEvent)
 func _ready() -> void:
 	initialize_actions()
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
-	print("[InputManager]: initialized.")
+	#print("[InputManager]: initialized.")
 	settings_man.connect("action_changed", _on_action_changed)
-	#player_man.connect("first_player_registered",_on_first_player)
+	player_man.connect("player_registered",_on_player_registered)
 
+var unbound_players:Array[Player]
+func _on_player_registered(player : Player):
+	unbound_players.append(player)
+
+#var actions_cache: InputActionList
 func initialize_actions():
 	var actions = settings_man.get_setting("actions").value as InputActionList
 	for action in actions.list:
-		add_action(action) 
+		realize_action(action) 
 
-func add_action(action: InputAction):
+func realize_action(action: InputAction):
 	if InputMap.has_action(action.name):
 		InputMap.erase_action(action.name)
 	InputMap.add_action(action.name)
@@ -35,52 +40,57 @@ func add_action(action: InputAction):
 		InputMap.action_add_event(action.name, event)
 
 func _on_action_changed(action: InputAction):
-		add_action(action)
+		realize_action(action)
 		ControllerIcons.refresh()
 
-# You can make this more performant in a couple ways -
-# Make a local copy of some sort of device to player lookup table to reference direcly - get player by device without looping, same as below
-# Lastly, you can make a local duplicate of the action array when it's updated to look through...
-# Though im skeptical it will be any more performant. 
-var bound_devices := {} # device_id -> true
+# To make this more performant, use the local InputActionList to create a reverse scancode lookup of event -> action, updated with signals. 
 func _unhandled_input(event: InputEvent) -> void:
+	# If players can join, a player needs a joypad, and this is an unbound joypad: bind the first unbound player to this joypad. 
+	# JOIN 
 	if player_man.can_join:
 		if event is InputEventJoypadButton or event is InputEventJoypadMotion:
 			var device_id = event.device
-			if bound_devices.has(device_id) or player_man.unbound_players.size() == 0:
-				return # already bound
-			# bind the first unbound player
-			var player = player_man.unbound_players.pop_front()
-			player.bind_controller(Input.get_joy_name(device_id), device_id)
-			bound_devices[device_id] = true
-			print("[PlayerManager]: Controller %s (%d) bound to player (%d)" % [Input.get_joy_name(device_id), device_id, player.id])
-	for action_name in InputMap.get_actions():
-		if InputMap.action_has_event(action_name, event):
-			if event.is_action(action_name):
-				if event is InputEventKey or event is InputEventMouse: # Give KB&M to first player
-					var first_player = player_man.players[0]
-					if first_player:    
-						print("[InputManager]: Sent action [", action_name, "] to player ", first_player.id)
-				else:
-					for player in player_man.players:
-						if player.controller_id != event.device:
-							continue
-						player.intent.actions[action_name] = event
-						print("[InputManager]: Sent action [", action_name, "] to player ", player.id)
- 
+			if not get_device_player(device_id) or unbound_players.size() > 0:
+				var player = unbound_players.pop_front()
+				player.bind_controller(Input.get_joy_name(device_id), device_id)
+				devices[device_id]["player"] = player
+				print("[InputManager]: %s [%d] bound to player (%d)" % [Input.get_joy_name(device_id), device_id, player.id])
+	# ACTIONS
+	for action in InputMap.get_actions():
+		if InputMap.event_is_action(event,action):
+			if event is InputEventKey or event is InputEventMouse: # Give KB&M to first player
+				var first_player = player_man.players.get(1)
+				if first_player:
+					emit_signal("action_triggered", action, event)
+					first_player.intent.actions[action] = event
+					#print("[InputManager]: Sent action [", action, "] to player ", first_player.id)
+			else: #Send the relevant device inputs to their respective players
+				var player = get_device_player(event.device)
+				if player:
+					emit_signal("action_triggered", action, event)
+					player.intent.actions[action] = event
+					#print("[InputManager]: Sent action [", action, "] to player ", player.id)
+				else: print("[InputManager]: No player found for this device.")
+
+func get_device_player(device_id: int):
+	var info = devices.get(device_id, null)
+	if info:
+		return info.get("player", null)
+	return null
+	 
+var devices: Dictionary[int, Dictionary] = {} # device_id -> { "player": Player, "name": String }
 func _on_joy_connection_changed(device_id: int, connected: bool):
 	if connected:
-		var device_name = Input.get_joy_name(device_id)
-		connected_controllers[device_id] = device_name
-		print("[InputManager]: Controller %s - %d connected" % [device_name, device_id])
+		# Store the device name immediately, player may be null initially
+		devices[device_id] = { "player": null, "name": Input.get_joy_name(device_id) }
+		print("[InputManager]: %s [%d] connected" % [devices[device_id]["name"], device_id])
 	else:
-		var device_name = connected_controllers.get(device_id, "Unknown")
-		print("[InputManager]: Controller %s - %d disconnected" % [device_name, device_id])
-		connected_controllers.erase(device_id)
-		for player in player_man.players:
-			if player.controller_id == device_id:
-				player.unbind_controller(device_name, device_id)
-				return
+		var device_info = devices.get(device_id, {"name":"Unknown"})
+		print("[InputManager]: Controller %s [%d] disconnected" % [device_info["name"], device_id])
+		devices.erase(device_id)
+		var player = player_man.get_player_by_device(device_id)
+		if player:
+			player.unbind_controller(device_info["name"], device_id)
 
 func get_vector(negative_x: StringName, positive_x: StringName, negative_y: StringName, positive_y: StringName, deadzone: float = 0.0, response: Curve = null) -> Vector2: #response: Curve
 	var vector: Vector2 = Vector2(Input.get_axis(negative_x, positive_x), Input.get_axis(negative_y, positive_y))

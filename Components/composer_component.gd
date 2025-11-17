@@ -13,13 +13,12 @@ func _ready() -> void:
 	parent = get_parent() as Node3D
 	for child in get_children():
 		if child is Behavior:
-			print("[%s COMPOSER]: %s - behavior added to list." % [parent.name, child.name])
+			print("[%s's %s]: %s - behavior added to list." % [parent.name, str(self), child.name])
 			behaviors.append(child)
 	for sibling in parent.get_children():
 		if sibling.has_method("intent"):
 			intent_emitter = sibling
 			print("[%s COMPOSER]: FOUND INTENT EMITTER %s." % [parent.name,intent_emitter.name])
-				
 
 # Interpret behavior transform relative to current transform
 # (the behavior’s origin is a local offset in its intent space)

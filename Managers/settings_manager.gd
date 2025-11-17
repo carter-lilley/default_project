@@ -12,12 +12,8 @@ var settings: Settings
 var settings_dict: Dictionary[String, SettingsVar] = {}
 
 func _init() -> void:
-	print("[SettingsManager]: initialized.")
+	#print("[SettingsManager]: initialized.")
 	load_settings()
-	
-func _ready() -> void:
-	pass
-	#var res = preload("res://Resources/default_inputs.tres")
 
 ## === Accessors ===
 func get_settings() -> Dictionary:

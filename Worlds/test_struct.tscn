@@ -1,10 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://q8lkyjiebml8"]
+[gd_scene load_steps=14 format=3 uid="uid://q8lkyjiebml8"]
 
 [ext_resource type="PackedScene" uid="uid://chvkd7wi7flwp" path="res://world.blend" id="1_f62ft"]
 [ext_resource type="Script" uid="uid://b14ruam5yia5t" path="res://Managers/input_manager.gd" id="2_23qdl"]
 [ext_resource type="Script" uid="uid://bxflifbe7e54k" path="res://Components/composer_component.gd" id="2_r1gqu"]
 [ext_resource type="Script" uid="uid://2jm43dul1g1u" path="res://Managers/player_manager.gd" id="3_1v52t"]
-[ext_resource type="Script" uid="uid://d1cn2drdrb2vc" path="res://Components/player_component.gd" id="3_tfbbp"]
 [ext_resource type="Script" uid="uid://dnv8p6icsvnv0" path="res://Managers/settings_manager.gd" id="4_lpl8i"]
 [ext_resource type="Resource" uid="uid://ca58t4r2bib2j" path="res://Resources/default_inputs.tres" id="5_n27mu"]
 [ext_resource type="Script" uid="uid://ckh8h1c6jmdxa" path="res://Managers/ui_manager.gd" id="6_lpl8i"]
@@ -86,14 +85,5 @@ metadata/_custom_type_script = "uid://bxflifbe7e54k"
 script = ExtResource("8_lpl8i")
 metadata/_custom_type_script = "uid://clvfnil4r3ue6"
 
-[node name="PlayerComponent" type="Node" parent="Camera3D" unique_id=801099928]
-script = ExtResource("3_tfbbp")
-player_id = 1
-metadata/_custom_type_script = "uid://d1cn2drdrb2vc"
-
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=923700309]
 mesh = SubResource("CylinderMesh_n27mu")
-
-[node name="PlayerComponent" type="Node" parent="MeshInstance3D" unique_id=921704850]
-script = ExtResource("3_tfbbp")
-metadata/_custom_type_script = "uid://d1cn2drdrb2vc"

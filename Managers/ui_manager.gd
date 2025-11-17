@@ -27,7 +27,7 @@ func _ready():
 func _on_action_triggered(action: String, event: InputEvent):
 	if event.is_pressed():
 		match action:
-			"pause":
+			"menu_action_1":
 				if not menu_container.visible:
 					menu_container.visible = true
 					tab_container.get_child(0).grab_focus()
